@@ -5,6 +5,7 @@ import java.net.DatagramSocket;
 
 public class Server extends Node {
 	static final int DEFAULT_PORT = 8080; // Assigning port number
+	static final int DEFAULT_PORT2 = 8085; //for thread 2
 
 	static final int HEADER_LENGTH = 2; // giving header
 	static final int TYPE_POS = 0;
@@ -65,11 +66,23 @@ public class Server extends Node {
 		this.wait();
 	}
 
-	public static class MyThread extends Thread {
+	public static class Thread1 extends Thread {
 		public void run(){
 			try {
-				Terminal terminal = new Terminal("Server");
+				Terminal terminal = new Terminal("Server Port: "+DEFAULT_PORT);
 				(new Server(terminal, DEFAULT_PORT)).start();
+				terminal.println("Program completed");
+			} catch (java.lang.Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static class Thread2 extends Thread {
+		public void run(){
+			try {
+				Terminal terminal = new Terminal("Server Port: "+DEFAULT_PORT2);
+				(new Server(terminal, DEFAULT_PORT2)).start();
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
 				e.printStackTrace();
@@ -79,8 +92,11 @@ public class Server extends Node {
 
 	public static void main(String[] args) {
 		try {
-			Thread newThread = new MyThread();
-			newThread.start();
+			Thread newThread1 = new Thread1();
+			newThread1.start();
+
+			Thread newThread2 = new Thread2();
+			newThread2.start();
 			//Terminal terminal = new Terminal("Server");
 			//(new Server(terminal, DEFAULT_PORT)).start();
 			//terminal.println("Program completed");

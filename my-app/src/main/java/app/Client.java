@@ -140,7 +140,7 @@ public class Client extends Node {
 	 */
 	public static void main(String[] args) {
 		try {
-			Terminal terminal = new Terminal("Client");
+			Terminal terminal = new Terminal("Client Port: " + DEFAULT_DST_PORT);
 			(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage();
 			terminal.println("Program completed");
 		} catch (java.lang.Exception e) {
