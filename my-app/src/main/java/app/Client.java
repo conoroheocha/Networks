@@ -16,8 +16,8 @@ import java.net.InetSocketAddress;
  */
 public class Client extends Node {
 	static final int DEFAULT_SRC_PORT = 50000; // Port of the client
-	static final int DEFAULT_DST_PORT = 50001; // Port of the server
-	static final String DEFAULT_DST_NODE = "local_host"; // Name of the host for the server
+	static final int DEFAULT_DST_PORT = 8080; // Port of the server
+	static final String DEFAULT_DST_NODE = "localhost"; // Name of the host for the server
 
 	static final int HEADER_LENGTH = 2; // Fixed length of the header
 	static final int TYPE_POS = 0; // Position of the type within the header
@@ -70,6 +70,16 @@ public class Client extends Node {
 	 * Sender Method
 	 *
 	 */
+	public synchronized void sendPacket(DatagramPacket packet, byte[] data) throws Exception {
+		terminal.println("Sending packet...");
+		packet = new DatagramPacket(data, data.length);
+		packet.setSocketAddress(dstAddress);
+		socket.send(packet);
+		terminal.println("Packet sent");
+		this.wait();
+	}
+
+
 	public synchronized void sendMessage() throws Exception {
 		byte[] data = null;
 		byte[] buffer = null;
@@ -83,12 +93,13 @@ public class Client extends Node {
 		data[LENGTH_POS] = (byte) buffer.length;
 		System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
 
-		terminal.println("Sending packet...");
+		sendPacket(packet, data);
+		/*terminal.println("Sending packet...");
 		packet = new DatagramPacket(data, data.length);
 		packet.setSocketAddress(dstAddress);
 		socket.send(packet);
 		terminal.println("Packet sent");
-		this.wait();
+		this.wait();*/
 
 		input = terminal.read("Enter Password: ");
 		buffer = input.getBytes();
@@ -97,12 +108,13 @@ public class Client extends Node {
 		data[LENGTH_POS] = (byte) buffer.length;
 		System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
 
-		terminal.println("Sending packet...");
+		sendPacket(packet, data);
+		/*terminal.println("Sending packet...");
 		packet = new DatagramPacket(data, data.length);
 		packet.setSocketAddress(dstAddress);
 		socket.send(packet);
 		terminal.println("Packet sent");
-		this.wait();
+		this.wait();*/
 
 		input = terminal.read("Enter Name, Breed and Age of Pet: ");
 		buffer = input.getBytes();
@@ -111,12 +123,13 @@ public class Client extends Node {
 		data[LENGTH_POS] = (byte) buffer.length;
 		System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
 
-		terminal.println("Sending packet...");
+		sendPacket(packet, data);
+		/*terminal.println("Sending packet...");
 		packet = new DatagramPacket(data, data.length);
 		packet.setSocketAddress(dstAddress);
 		socket.send(packet);
 		terminal.println("Packet sent");
-		this.wait();
+		this.wait();*/
 
 	}
 

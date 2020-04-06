@@ -4,7 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 public class Server extends Node {
-	static final int DEFAULT_PORT = 50001; // Assigning port number
+	static final int DEFAULT_PORT = 8080; // Assigning port number
 
 	static final int HEADER_LENGTH = 2; // giving header
 	static final int TYPE_POS = 0;
@@ -65,11 +65,25 @@ public class Server extends Node {
 		this.wait();
 	}
 
+	public static class MyThread extends Thread {
+		public void run(){
+			try {
+				Terminal terminal = new Terminal("Server");
+				(new Server(terminal, DEFAULT_PORT)).start();
+				terminal.println("Program completed");
+			} catch (java.lang.Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		try {
-			Terminal terminal = new Terminal("Server");
-			(new Server(terminal, DEFAULT_PORT)).start();
-			terminal.println("Program completed");
+			Thread newThread = new MyThread();
+			newThread.start();
+			//Terminal terminal = new Terminal("Server");
+			//(new Server(terminal, DEFAULT_PORT)).start();
+			//terminal.println("Program completed");
 		} catch (java.lang.Exception e) {
 			e.printStackTrace();
 		}
