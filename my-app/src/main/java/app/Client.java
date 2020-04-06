@@ -1,5 +1,6 @@
 package app;
 
+import java.io.Console;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -17,7 +18,7 @@ import java.net.InetSocketAddress;
 public class Client extends Node {
 	static final int DEFAULT_SRC_PORT = 50000; // Port of the client
 	static final int DEFAULT_DST_PORT = 50001; // Port of the server
-	static final String DEFAULT_DST_NODE = "local_host"; // Name of the host for the server
+	static final String DEFAULT_DST_NODE = "localhost"; // Name of the host for the server
 
 	static final int HEADER_LENGTH = 2; // Fixed length of the header
 	static final int TYPE_POS = 0; // Position of the type within the header
@@ -44,6 +45,7 @@ public class Client extends Node {
 			dstAddress = new InetSocketAddress(dstHost, dstPort);
 			socket = new DatagramSocket(srcPort);
 			listener.go();
+			System.out.println(dstAddress.getAddress() + dstAddress.getHostName() + dstAddress.getPort());
 		} catch (java.lang.Exception e) {
 			e.printStackTrace();
 		}
