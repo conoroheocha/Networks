@@ -3,14 +3,17 @@ package app;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.nio.charset.StandardCharsets;
 
+import com.google.crypto.tink.Aead;
 
 public class Server extends Node {
-	static final int DEFAULT_SRC_PORT = 50010;//just necessary for client function. These need to be different for all the files as they are used somehow in the setup
+	static Aead key;
+
+	static final int DEFAULT_SRC_PORT = 50010;// just necessary for client function. These need to be different for all
+												// the files as they are used somehow in the setup
 	static final int DEFAULT_PORT = 8080; // Assigning port number
-	static final int DEFAULT_PORT2 = 8085; //for thread 2
+	static final int DEFAULT_PORT2 = 8085; // for thread 2
 	static final int DEFAULT_DST_PORT = 8090;// talk to global server
 	static final String DEFAULT_DST_NODE = "localhost";
 
@@ -51,10 +54,11 @@ public class Server extends Node {
 			case TYPE_STRING:
 				buffer = new byte[data[LENGTH_POS]];
 				System.arraycopy(data, HEADER_LENGTH, buffer, 0, buffer.length);
-				content = new String(buffer);
+				Encryption decrypter = new Encryption(key);
+				content = decrypter.decrypt(buffer);
 				terminal.println("|" + content + "|");
 				terminal.println("Length: " + content.length());
-				if(content.equals("covid")){
+				if (content.equals("covid")) {
 					localStats++;
 				}
 
@@ -87,9 +91,9 @@ public class Server extends Node {
 	////////////////////////
 
 	public static class Thread1 extends Thread {
-		public void run(){
+		public void run() {
 			try {
-				Terminal terminal = new Terminal("Server1 Port: "+DEFAULT_PORT);
+				Terminal terminal = new Terminal("Server1 Port: " + DEFAULT_PORT);
 				(new Server(terminal, DEFAULT_PORT)).start();
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
@@ -99,9 +103,9 @@ public class Server extends Node {
 	}
 
 	public static class Thread2 extends Thread {
-		public void run(){
+		public void run() {
 			try {
-				Terminal terminal = new Terminal("Server1 Port: "+DEFAULT_PORT2);
+				Terminal terminal = new Terminal("Server1 Port: " + DEFAULT_PORT2);
 				(new Server(terminal, DEFAULT_PORT2)).start();
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
@@ -111,10 +115,10 @@ public class Server extends Node {
 	}
 
 	public static class sendThread extends Thread {
-		public void run(){
+		public void run() {
 			try {
 				Terminal terminal = new Terminal("Server1 client facility Port: " + DEFAULT_DST_PORT);
-				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage();
+				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(key);
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
 				e.printStackTrace();
@@ -122,7 +126,8 @@ public class Server extends Node {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void decryption(Aead aead) {
+		key = aead;
 		try {
 			Thread newThread1 = new Thread1();
 			newThread1.start();
@@ -136,5 +141,21 @@ public class Server extends Node {
 		} catch (java.lang.Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void main(String[] args) {
+//		try {
+//			Thread newThread1 = new Thread1();
+//			newThread1.start();
+//
+//			Thread newThread2 = new Thread2();
+//			newThread2.start();
+//
+//			Thread sendThread1 = new sendThread();
+//			sendThread1.start();
+//
+//		} catch (java.lang.Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 }

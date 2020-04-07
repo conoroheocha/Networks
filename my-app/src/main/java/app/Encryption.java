@@ -9,20 +9,24 @@ import com.google.crypto.tink.aead.AeadKeyTemplates;
 import com.google.crypto.tink.config.TinkConfig;
 
 public class Encryption {
-	private static Aead aead;
+	private static Aead key;
 
-	Encryption() throws GeneralSecurityException {
-		TinkConfig.register();
+	Encryption(Aead aead) throws GeneralSecurityException {
+		if (aead == null) {
+			TinkConfig.register();
 
-		KeysetHandle keysetHandle = KeysetHandle.generateNew(AeadKeyTemplates.AES128_GCM);
-		aead = AeadFactory.getPrimitive(keysetHandle);
+			KeysetHandle keysetHandle = KeysetHandle.generateNew(AeadKeyTemplates.AES128_GCM);
+			aead = AeadFactory.getPrimitive(keysetHandle);
+		}
+
+		key = aead;
 	}
 
 	byte[] encrypt(String toEncrypt) throws GeneralSecurityException {
 		// System.out.println("String to Encrypt: " + toEncrypt);
 		byte[] toEncryptBytes = toEncrypt.getBytes();
 		// System.out.println("Bytes to Encrypt: " + toEncryptBytes);
-		byte[] ciphertext = aead.encrypt(toEncryptBytes, null);
+		byte[] ciphertext = key.encrypt(toEncryptBytes, null);
 		// System.out.println("Encrypted Bytes: " + ciphertext);
 
 		return ciphertext;
@@ -30,11 +34,15 @@ public class Encryption {
 
 	String decrypt(byte[] toDecrypt) throws GeneralSecurityException {
 		// System.out.println("Bytes to Decrypt: " + toDecrypt);
-		byte[] decrypted = aead.decrypt(toDecrypt, null);
+		byte[] decrypted = key.decrypt(toDecrypt, null);
 		// System.out.println("Decrypted Bytes: " + decrypted);
 		String decryptedString = new String(decrypted);
 		// System.out.println("Decrypted String: " + decryptedString);
 
 		return decryptedString;
+	}
+
+	Aead getKey() {
+		return key;
 	}
 }
