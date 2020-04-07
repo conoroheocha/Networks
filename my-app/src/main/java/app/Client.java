@@ -79,58 +79,23 @@ public class Client extends Node {
 		this.wait();
 	}
 
-
 	public synchronized void sendMessage() throws Exception {
 		byte[] data = null;
 		byte[] buffer = null;
 		DatagramPacket packet = null;
-		String input;
+		String input = "";
 
-		input = terminal.read("Enter Username: ");
-		buffer = input.getBytes();
-		data = new byte[HEADER_LENGTH + buffer.length];
-		data[TYPE_POS] = TYPE_STRING;
-		data[LENGTH_POS] = (byte) buffer.length;
-		System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
+		while (!(input.equals("quit"))) {
+			input = terminal.read("Enter Symptoms: ");
+			System.out.println(input);
+			buffer = input.getBytes();
+			data = new byte[HEADER_LENGTH + buffer.length];
+			data[TYPE_POS] = TYPE_STRING;
+			data[LENGTH_POS] = (byte) buffer.length;
+			System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
 
-		sendPacket(packet, data);
-		/*terminal.println("Sending packet...");
-		packet = new DatagramPacket(data, data.length);
-		packet.setSocketAddress(dstAddress);
-		socket.send(packet);
-		terminal.println("Packet sent");
-		this.wait();*/
-
-		input = terminal.read("Enter Password: ");
-		buffer = input.getBytes();
-		data = new byte[HEADER_LENGTH + buffer.length];
-		data[TYPE_POS] = TYPE_STRING;
-		data[LENGTH_POS] = (byte) buffer.length;
-		System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
-
-		sendPacket(packet, data);
-		/*terminal.println("Sending packet...");
-		packet = new DatagramPacket(data, data.length);
-		packet.setSocketAddress(dstAddress);
-		socket.send(packet);
-		terminal.println("Packet sent");
-		this.wait();*/
-
-		input = terminal.read("Enter Name, Breed and Age of Pet: ");
-		buffer = input.getBytes();
-		data = new byte[HEADER_LENGTH + buffer.length];
-		data[TYPE_POS] = TYPE_STRING;
-		data[LENGTH_POS] = (byte) buffer.length;
-		System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
-
-		sendPacket(packet, data);
-		/*terminal.println("Sending packet...");
-		packet = new DatagramPacket(data, data.length);
-		packet.setSocketAddress(dstAddress);
-		socket.send(packet);
-		terminal.println("Packet sent");
-		this.wait();*/
-
+			sendPacket(packet, data);
+		}
 	}
 
 	/**
