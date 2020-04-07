@@ -22,12 +22,27 @@ public class AppTest {
 		}
 	};
 
+	Thread threadC = new Thread() {
+		public void start() {
+			Client2.encryption(key);
+		}
+	};
+
+	Thread threadD = new Thread() {
+		public void start() {
+			GlobalServer.decryption(key);
+		}
+	};
+
 	@Test
 	public void TestEncryption() throws GeneralSecurityException {
 		Encryption encryption = new Encryption(null);
 		key = encryption.getKey();
 
+		threadD.start();
 		threadB.start();
+
+		threadC.start();
 		threadA.start();
 	}
 }

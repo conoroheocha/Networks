@@ -55,6 +55,7 @@ public class Server extends Node {
 				buffer = new byte[data[LENGTH_POS]];
 				System.arraycopy(data, HEADER_LENGTH, buffer, 0, buffer.length);
 				Encryption decrypter = new Encryption(key);
+				System.out.print(buffer);
 				content = decrypter.decrypt(buffer);
 				terminal.println("|" + content + "|");
 				terminal.println("Length: " + content.length());
