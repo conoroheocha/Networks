@@ -1,42 +1,38 @@
-//USE TESTRUN.JAVA INSTEAD
 package app;
 
 import java.security.GeneralSecurityException;
 
-import org.junit.Test;
-
 import com.google.crypto.tink.Aead;
 
-public class AppTest {
+public class TestRun {
 
-	private Aead key;
+	private static Aead key;
 
-	Thread threadA = new Thread() {
+	static Thread threadA = new Thread() {
 		public void start() {
 			Client.encryption(key);
 		}
 	};
 
-	Thread threadB = new Thread() {
+	static Thread threadB = new Thread() {
 		public void start() {
 			Server.decryption(key);
 		}
 	};
 
-	Thread threadC = new Thread() {
+	static Thread threadC = new Thread() {
 		public void start() {
 			Client2.encryption(key);
 		}
 	};
 
-	Thread threadD = new Thread() {
+	static Thread threadD = new Thread() {
 		public void start() {
 			GlobalServer.decryption(key);
 		}
 	};
 
-	@Test
-	public void TestEncryption() throws GeneralSecurityException {
+	public static void main(String[] args) throws GeneralSecurityException {
 		Encryption encryption = new Encryption(null);
 		key = encryption.getKey();
 		System.out.println("mmm");
@@ -47,8 +43,5 @@ public class AppTest {
 		threadA.start();
 		System.out.println("ooo");
 		threadC.start();
-		while (true) {
-
-		}
 	}
 }
