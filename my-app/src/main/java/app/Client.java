@@ -35,6 +35,7 @@ public class Client extends Node {
 
 	Terminal terminal;
 	InetSocketAddress dstAddress;
+	private static Aead clientKey;
 
 	/**
 	 * Constructor
@@ -49,6 +50,7 @@ public class Client extends Node {
 			dstAddress = new InetSocketAddress(dstHost, dstPort);
 			socket = new DatagramSocket(srcPort);
 			listener.go();
+			System.out.println("check2");
 		} catch (java.lang.Exception e) {
 			e.printStackTrace();
 		}
@@ -104,7 +106,7 @@ public class Client extends Node {
 		DatagramPacket packet = null;
 		String input = "";
 
-		while (!input.equalsIgnoreCase("quit")) {
+		for(int i = 0; i< 10; i++){//while (!input.equalsIgnoreCase("quit")) {
 			input = terminal.read("Enter Symptoms or type quit to exit: ");
 			Encryption encrypter = new Encryption(key);
 			byte[] encrypted = encrypter.encrypt(input);
@@ -112,14 +114,23 @@ public class Client extends Node {
 		}
 	}
 
-	public static void encryption(Aead key) {
-		try {
-			Terminal terminal = new Terminal("Client1 Port: " + DEFAULT_DST_PORT);
-			(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(key);
-			terminal.println("Program completed");
-		} catch (java.lang.Exception e) {
-			e.printStackTrace();
+	public static class creatorThread extends Thread{
+		public void run(){
+			try {
+				Terminal terminal = new Terminal("Client1 Port: " + DEFAULT_DST_PORT);
+				System.out.println("check1");
+				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(clientKey);
+				terminal.println("Program completed");
+			} catch (java.lang.Exception e) {
+				e.printStackTrace();
+			}
 		}
+	}
+
+	public static void encryption(Aead key) {
+		clientKey = key;
+		Thread newCThread1 = new creatorThread();
+		newCThread1.start();
 	}
 
 	/**

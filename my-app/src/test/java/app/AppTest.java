@@ -38,11 +38,13 @@ public class AppTest {
 	public void TestEncryption() throws GeneralSecurityException {
 		Encryption encryption = new Encryption(null);
 		key = encryption.getKey();
-
+		System.out.println("mmm");
 		threadD.start();
 		threadB.start();
 
-		threadC.start();
+		System.out.println("nnn");
 		threadA.start();
+		System.out.println("ooo");
+		threadC.start();
 	}
 }

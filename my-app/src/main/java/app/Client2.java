@@ -34,6 +34,8 @@ public class Client2 extends Node {
 	Terminal terminal;
 	InetSocketAddress dstAddress;
 
+	private static Aead clientKey;
+
 	/**
 	 * Constructor
 	 *
@@ -99,14 +101,24 @@ public class Client2 extends Node {
 	 * 
 	 * }
 	 */
-	public static void encryption(Aead key) {
-		try {
-			Terminal terminal = new Terminal("Client2 Port: " + DEFAULT_DST_PORT);
-			(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(key);
-			terminal.println("Program completed");
-		} catch (java.lang.Exception e) {
-			e.printStackTrace();
+	public static class creatorThread extends Thread{
+		public void run(){
+			try {
+				Terminal terminal = new Terminal("Client2 Port: " + DEFAULT_DST_PORT);
+				System.out.println("check1");
+				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(clientKey);
+				terminal.println("Program completed");
+			} catch (java.lang.Exception e) {
+				e.printStackTrace();
+			}
 		}
+	}
+
+
+	public static void encryption(Aead key) {
+		clientKey = key;
+		Thread newCThread1 = new Client.creatorThread();
+		newCThread1.start();
 	}
 
 	public static void main(String[] args) {
