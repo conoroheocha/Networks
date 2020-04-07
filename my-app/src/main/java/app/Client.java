@@ -106,7 +106,7 @@ public class Client extends Node {
 		DatagramPacket packet = null;
 		String input = "";
 
-		for(int i = 0; i< 10; i++){//while (!input.equalsIgnoreCase("quit")) {
+		for(int i = 0; i< 10; i++){//while (!input.equalsIgnoreCase("quit")) {//
 			input = terminal.read("Enter Symptoms or type quit to exit: ");
 			Encryption encrypter = new Encryption(key);
 			byte[] encrypted = encrypter.encrypt(input);

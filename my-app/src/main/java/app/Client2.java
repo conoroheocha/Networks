@@ -117,7 +117,7 @@ public class Client2 extends Node {
 
 	public static void encryption(Aead key) {
 		clientKey = key;
-		Thread newCThread1 = new Client.creatorThread();
+		Thread newCThread1 = new creatorThread();
 		newCThread1.start();
 	}
 
