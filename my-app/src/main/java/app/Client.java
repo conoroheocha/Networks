@@ -3,6 +3,7 @@ package app;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -57,14 +58,22 @@ public class Client extends Node {
 		byte[] data;
 
 		data = packet.getData();
-		switch (data[TYPE_POS]) {
+
+		terminal.println("Received ack");
+
+		String str = new String(data, StandardCharsets.UTF_8);
+		terminal.println("passed string: " + str);
+
+		this.notify();
+		/*switch (data[TYPE_POS]) {
 		case TYPE_ACK:
 			terminal.println("Received ack");
+			terminal.println("Unexpected packet" + data.toString());
 			this.notify();
 			break;
 		default:
 			terminal.println("Unexpected packet" + packet.toString());
-		}
+		}*/
 	}
 
 	/**

@@ -3,6 +3,9 @@ package app;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
+
 
 public class Server extends Node {
 	static final int DEFAULT_SRC_PORT = 50010;//just necessary for client function. These need to be different for all the files as they are used somehow in the setup
@@ -18,6 +21,9 @@ public class Server extends Node {
 	static final int LENGTH_POS = 1;
 
 	static final byte TYPE_ACK = 2;
+
+	int localStats = 500;
+	int globalStats = 10000;
 
 	Terminal terminal;
 	InetSocketAddress dstAddress;
@@ -48,9 +54,15 @@ public class Server extends Node {
 				content = new String(buffer);
 				terminal.println("|" + content + "|");
 				terminal.println("Length: " + content.length());
+				if(content.equals("covid")){
+					localStats++;
+				}
 
 				data = new byte[HEADER_LENGTH];
-				data[TYPE_POS] = TYPE_ACK;
+				String stats = (localStats) + "," + (globalStats);
+				data = stats.getBytes(StandardCharsets.UTF_8);
+				String str = new String(data, StandardCharsets.UTF_8);
+				terminal.println("Stats to send: " + str);
 
 				DatagramPacket response;
 				response = new DatagramPacket(data, data.length);
