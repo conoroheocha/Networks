@@ -2,10 +2,17 @@ package app;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
+
 
 public class Server extends Node {
+	static final int DEFAULT_SRC_PORT = 50010;//just necessary for client function. These need to be different for all the files as they are used somehow in the setup
 	static final int DEFAULT_PORT = 8080; // Assigning port number
 	static final int DEFAULT_PORT2 = 8085; //for thread 2
+	static final int DEFAULT_DST_PORT = 8090;// talk to global server
+	static final String DEFAULT_DST_NODE = "localhost";
 
 	static final int HEADER_LENGTH = 2; // giving header
 	static final int TYPE_POS = 0;
@@ -15,7 +22,11 @@ public class Server extends Node {
 
 	static final byte TYPE_ACK = 2;
 
+	int localStats = 500;
+	int globalStats = 10000;
+
 	Terminal terminal;
+	InetSocketAddress dstAddress;
 
 	Server(Terminal terminal, int port) {
 		try {
@@ -43,9 +54,15 @@ public class Server extends Node {
 				content = new String(buffer);
 				terminal.println("|" + content + "|");
 				terminal.println("Length: " + content.length());
+				if(content.equals("covid")){
+					localStats++;
+				}
 
 				data = new byte[HEADER_LENGTH];
-				data[TYPE_POS] = TYPE_ACK;
+				String stats = (localStats) + "," + (globalStats);
+				data = stats.getBytes(StandardCharsets.UTF_8);
+				String str = new String(data, StandardCharsets.UTF_8);
+				terminal.println("Stats to send: " + str);
 
 				DatagramPacket response;
 				response = new DatagramPacket(data, data.length);
@@ -66,10 +83,13 @@ public class Server extends Node {
 		this.wait();
 	}
 
+	////////////////////////////////////////
+	////////////////////////
+
 	public static class Thread1 extends Thread {
 		public void run(){
 			try {
-				Terminal terminal = new Terminal("Server Port: "+DEFAULT_PORT);
+				Terminal terminal = new Terminal("Server1 Port: "+DEFAULT_PORT);
 				(new Server(terminal, DEFAULT_PORT)).start();
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
@@ -81,8 +101,20 @@ public class Server extends Node {
 	public static class Thread2 extends Thread {
 		public void run(){
 			try {
-				Terminal terminal = new Terminal("Server Port: "+DEFAULT_PORT2);
+				Terminal terminal = new Terminal("Server1 Port: "+DEFAULT_PORT2);
 				(new Server(terminal, DEFAULT_PORT2)).start();
+				terminal.println("Program completed");
+			} catch (java.lang.Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static class sendThread extends Thread {
+		public void run(){
+			try {
+				Terminal terminal = new Terminal("Server1 client facility Port: " + DEFAULT_DST_PORT);
+				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage();
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
 				e.printStackTrace();
@@ -97,9 +129,10 @@ public class Server extends Node {
 
 			Thread newThread2 = new Thread2();
 			newThread2.start();
-			//Terminal terminal = new Terminal("Server");
-			//(new Server(terminal, DEFAULT_PORT)).start();
-			//terminal.println("Program completed");
+
+			Thread sendThread1 = new sendThread();
+			sendThread1.start();
+
 		} catch (java.lang.Exception e) {
 			e.printStackTrace();
 		}
