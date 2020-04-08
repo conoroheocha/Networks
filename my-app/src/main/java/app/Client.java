@@ -18,23 +18,19 @@ import com.google.crypto.tink.Aead;
  *
  */
 public class Client extends Node {
-	static final int DEFAULT_SRC_PORT = 50000; // Port of the client. These need to be different for all the files as
+	static final int SOURCE_PORT = 50000; // Port of the client. These need to be different for all the files as
 												// they are used somehow in the setup
-	static final int DEFAULT_DST_PORT = 8080; // Port of the server
-	static final String DEFAULT_DST_NODE = "localhost"; // Name of the host for the server
+	static final int DESTINATION_PORT = 8080; // Port of the server
+	static final String DESTINATION_NODE = "localhost"; // Name of the host for the server
 
 	static final int HEADER_LENGTH = 2; // Fixed length of the header // a lot of these ints are for checking bytes sent are the right type etc
-	static final int TYPE_POS = 0; // Position of the type within the header
-
-	static final byte TYPE_UNKNOWN = 0;
+	static final int TYPE_POSITION = 0; // Position of the type within the header
 
 	static final byte TYPE_STRING = 1; // Indicating a string payload
 	static final int LENGTH_POS = 1;
 
-	static final byte TYPE_ACK = 2; // Indicating an acknowledgement
-
 	Terminal terminal;
-	InetSocketAddress dstAddress;
+	InetSocketAddress destinationAddress;
 	private static Aead clientKey;
 
 	/**
@@ -46,7 +42,7 @@ public class Client extends Node {
 	Client(Terminal terminal, String dstHost, int dstPort, int srcPort) {
 		try {
 			this.terminal = terminal;
-			dstAddress = new InetSocketAddress(dstHost, dstPort);
+			destinationAddress = new InetSocketAddress(dstHost, dstPort);
 			socket = new DatagramSocket(srcPort);// attaches to desired port
 			listener.go();//waits to get input
 		} catch (java.lang.Exception e) {
@@ -75,7 +71,7 @@ public class Client extends Node {
 	public synchronized void sendPacket(byte[] data) throws Exception {
 		terminal.println("Sending packet...");
 		DatagramPacket packet = new DatagramPacket(data, data.length);
-		packet.setSocketAddress(dstAddress);
+		packet.setSocketAddress(destinationAddress);
 		socket.send(packet);//sends packet to server
 		terminal.println("Packet sent");
 		this.wait();//waits for response
@@ -83,7 +79,7 @@ public class Client extends Node {
 
 	public synchronized void readAndSendPacket(DatagramPacket packet, byte[] input) throws Exception {
 		byte[] data = new byte[HEADER_LENGTH + input.length];
-		data[TYPE_POS] = TYPE_STRING;
+		data[TYPE_POSITION] = TYPE_STRING;
 		data[LENGTH_POS] = (byte) input.length;
 		System.arraycopy(input, 0, data, HEADER_LENGTH, input.length);//organises the data into a packet
 
@@ -106,8 +102,8 @@ public class Client extends Node {
 	public static class creatorThread extends Thread{
 		public void run(){
 			try {
-				Terminal terminal = new Terminal("Client1 Port: " + DEFAULT_DST_PORT);
-				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(clientKey);
+				Terminal terminal = new Terminal("Client1 Port: " + DESTINATION_PORT);
+				(new Client(terminal, DESTINATION_NODE, DESTINATION_PORT, SOURCE_PORT)).sendMessage(clientKey);
 				// configures a client terminal using client instantiater
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {

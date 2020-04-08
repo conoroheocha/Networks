@@ -11,26 +11,22 @@ import com.google.crypto.tink.Aead;
 public class Server extends Node {
 	static Aead key;
 
-	static final int DEFAULT_SRC_PORT = 50010;// just necessary for client function. These need to be different for all
+	static final int SOURCE_PORT = 50010;// just necessary for client function. These need to be different for all
 												// the files as they are used in the setup
 	static final int DEFAULT_PORT = 8080; // listen for client 1
 	static final int DEFAULT_PORT2 = 8085; // listen for client 2
-	static final int DEFAULT_DST_PORT = 8090;// talk to global server
-	static final String DEFAULT_DST_NODE = "localhost";
+	static final int DESTINATION_PORT = 8090;// talk to global server
+	static final String DESTINATION_NODE = "localhost";
 
 	static final int HEADER_LENGTH = 2; // giving header
 	static final int TYPE_POS = 0;
-
 	static final byte TYPE_STRING = 1;
 	static final int LENGTH_POS = 1;
-
-	static final byte TYPE_ACK = 2;
 
 	static int localStats = 500;
 	static int globalStats = 10000;
 
 	Terminal terminal;
-	InetSocketAddress dstAddress;
 
 	Server(Terminal terminal, int port) {
 		try {
@@ -114,8 +110,8 @@ public class Server extends Node {
 	public static class sendThread extends Thread {
 		public void run() {
 			try {
-				Terminal terminal = new Terminal("Server1 client facility Port: " + DEFAULT_DST_PORT);
-				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(key);
+				Terminal terminal = new Terminal("Server1 client facility Port: " + DESTINATION_PORT);
+				(new Client(terminal, DESTINATION_NODE, DESTINATION_PORT, SOURCE_PORT)).sendMessage(key);
 				//configures a client terminal using client instantiater from client.java
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {

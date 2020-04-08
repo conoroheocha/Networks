@@ -13,11 +13,8 @@ public class GlobalServer extends Node {
 
 	static final int HEADER_LENGTH = 2; // giving header
 	static final int TYPE_POS = 0;
-
 	static final byte TYPE_STRING = 1;
 	static final int LENGTH_POS = 1;
-
-	static final byte TYPE_ACK = 2;
 
 	static int localStats = 500;
 	static int globalStats = 10000;
