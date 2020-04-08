@@ -34,14 +34,12 @@ public class TestRun {
 
 	public static void main(String[] args) throws GeneralSecurityException {
 		Encryption encryption = new Encryption(null);
-		key = encryption.getKey();
-		System.out.println("mmm");
-		threadD.start();
-		threadB.start();
+		key = encryption.getKey();//creates the encryption key
 
-		System.out.println("nnn");
-		threadA.start();
-		System.out.println("ooo");
-		threadC.start();
+		threadD.start(); //global server
+		threadB.start(); //server1
+
+		threadA.start(); //client1
+		threadC.start(); //client2
 	}
 }

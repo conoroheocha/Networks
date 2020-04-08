@@ -5,108 +5,39 @@ import java.net.InetSocketAddress;
 
 import com.google.crypto.tink.Aead;
 
-/**
- *
- * Client class -
- *
- * An instance accepts input from the user It then leads this into a datagram,
- * sends it to a server and wait for reply When a packet has been received, the
- * type of the packet is checked and if it is an acknowledgement. Message is
- * printed and the waiting main method is being notified
- *
- */
 public class Client2 extends Node {
 	static final int DEFAULT_SRC_PORT = 50005; // Port of the client. These need to be different for all the files as
 												// they are used somehow in the setup
 	static final int DEFAULT_DST_PORT = 8085; // Port of the server
 	static final String DEFAULT_DST_NODE = "localhost"; // Name of the host for the server
-
-	static final int HEADER_LENGTH = 2; // Fixed length of the header
+	// a lot of these ints are for checking bytes sent are the right type etc
 	static final int TYPE_POS = 0; // Position of the type within the header
-
-	static final byte TYPE_UNKNOWN = 0;
-
-	static final byte TYPE_STRING = 1; // Indicating a string payload
-	static final int LENGTH_POS = 1;
 
 	static final byte TYPE_ACK = 2; // Indicating an acknowledgement
 
 	Terminal terminal;
-	InetSocketAddress dstAddress;
 
 	private static Aead clientKey;
 
-	/**
-	 * Constructor
-	 *
-	 * Attempts to create socket at given port and create an InetSocketAddress for
-	 * the destinations
-	 */
-	/*
-	 * Client2(Terminal terminal, String dstHost, int dstPort, int srcPort) { try {
-	 * 
-	 * terminal.println("clienting"); this.terminal = terminal; dstAddress = new
-	 * InetSocketAddress(dstHost, dstPort); socket = new DatagramSocket(srcPort);
-	 * listener.go(); } catch (java.lang.Exception e) { e.printStackTrace(); } }
-	 * 
-	 * /** Assume that incoming packets contain a String and print the string.
-	 */
-	public synchronized void onReceipt(DatagramPacket packet) {
+	public synchronized void onReceipt(DatagramPacket packet) {//when server sends message back
 		byte[] data;
 
 		data = packet.getData();
-		switch (data[TYPE_POS]) {
-		case TYPE_ACK:
-			terminal.println("Received ack");
+		if (data[TYPE_POS]==TYPE_ACK) {
+			terminal.println("Received ack");//acknowledgement if response is the right type
 			this.notify();
-			break;
-		default:
+		}
+		else{
 			terminal.println("Unexpected packet" + packet.toString());
 		}
 	}
 
-	/*
-	 * Sender Method
-	 *
-	 * 
-	 * public synchronized void sendPacket(DatagramPacket packet, byte[] data)
-	 * throws Exception { terminal.println("Sending packet..."); packet = new
-	 * DatagramPacket(data, data.length); packet.setSocketAddress(dstAddress);
-	 * socket.send(packet); terminal.println("Packet sent"); this.wait(); }
-	 * 
-	 * 
-	 * public synchronized void sendMessage() throws Exception { byte[] data = null;
-	 * byte[] buffer = null; DatagramPacket packet = null; String input;
-	 * 
-	 * input = terminal.read("Enter Username: "); buffer = input.getBytes(); data =
-	 * new byte[HEADER_LENGTH + buffer.length]; data[TYPE_POS] = TYPE_STRING;
-	 * data[LENGTH_POS] = (byte) buffer.length; System.arraycopy(buffer, 0, data,
-	 * HEADER_LENGTH, buffer.length);
-	 * 
-	 * sendPacket(packet, data);
-	 * 
-	 * input = terminal.read("Enter Password: "); buffer = input.getBytes(); data =
-	 * new byte[HEADER_LENGTH + buffer.length]; data[TYPE_POS] = TYPE_STRING;
-	 * data[LENGTH_POS] = (byte) buffer.length; System.arraycopy(buffer, 0, data,
-	 * HEADER_LENGTH, buffer.length);
-	 * 
-	 * sendPacket(packet, data);
-	 * 
-	 * input = terminal.read("Enter Name, Breed and Age of Pet: "); buffer =
-	 * input.getBytes(); data = new byte[HEADER_LENGTH + buffer.length];
-	 * data[TYPE_POS] = TYPE_STRING; data[LENGTH_POS] = (byte) buffer.length;
-	 * System.arraycopy(buffer, 0, data, HEADER_LENGTH, buffer.length);
-	 * 
-	 * sendPacket(packet, data);
-	 * 
-	 * }
-	 */
 	public static class creatorThread extends Thread{
 		public void run(){
 			try {
 				Terminal terminal = new Terminal("Client2 Port: " + DEFAULT_DST_PORT);
-				System.out.println("check1");
 				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(clientKey);
+				//configures a client terminal using client instantiater from client.java
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
 				e.printStackTrace();
@@ -114,20 +45,12 @@ public class Client2 extends Node {
 		}
 	}
 
-
 	public static void encryption(Aead key) {
 		clientKey = key;
 		Thread newCThread1 = new creatorThread();
-		newCThread1.start();
+		newCThread1.start();// starts creator thread to set up terminal
 	}
 
 	public static void main(String[] args) {
-//        try {
-//            Terminal terminal = new Terminal("Client2 Port: " + DEFAULT_DST_PORT);
-//            (new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage();
-//            terminal.println("Program completed");
-//        } catch (java.lang.Exception e) {
-//            e.printStackTrace();
-//        }
 	}
 }

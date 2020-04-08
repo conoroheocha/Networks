@@ -7,13 +7,14 @@ import java.nio.charset.StandardCharsets;
 
 import com.google.crypto.tink.Aead;
 
+
 public class Server extends Node {
 	static Aead key;
 
 	static final int DEFAULT_SRC_PORT = 50010;// just necessary for client function. These need to be different for all
-												// the files as they are used somehow in the setup
-	static final int DEFAULT_PORT = 8080; // Assigning port number
-	static final int DEFAULT_PORT2 = 8085; // for thread 2
+												// the files as they are used in the setup
+	static final int DEFAULT_PORT = 8080; // listen for client 1
+	static final int DEFAULT_PORT2 = 8085; // listen for client 2
 	static final int DEFAULT_DST_PORT = 8090;// talk to global server
 	static final String DEFAULT_DST_NODE = "localhost";
 
@@ -25,8 +26,8 @@ public class Server extends Node {
 
 	static final byte TYPE_ACK = 2;
 
-	int localStats = 500;
-	int globalStats = 10000;
+	static int localStats = 500;
+	static int globalStats = 10000;
 
 	Terminal terminal;
 	InetSocketAddress dstAddress;
@@ -34,47 +35,43 @@ public class Server extends Node {
 	Server(Terminal terminal, int port) {
 		try {
 			this.terminal = terminal;
-			socket = new DatagramSocket(port);
+			socket = new DatagramSocket(port);// listens for client at a port
 			listener.go();
 		} catch (java.lang.Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	/* Assuming the data sent is a string i.e if its a username and password */
-
-	public synchronized void onReceipt(DatagramPacket packet) {
+	public synchronized void onReceipt(DatagramPacket packet) {//when it receives from client
 		try {
 			String content;
 			byte[] data;
 			byte[] buffer;
 
 			data = packet.getData();
-			switch (data[TYPE_POS]) {
-			case TYPE_STRING:
+			if (data[TYPE_POS]==TYPE_STRING) {//if message is a string
 				buffer = new byte[data[LENGTH_POS]];
 				System.arraycopy(data, HEADER_LENGTH, buffer, 0, buffer.length);
-				Encryption decrypter = new Encryption(key);
-				System.out.print(buffer);
+				Encryption decrypter = new Encryption(key);//decrypts received message
+
 				content = decrypter.decrypt(buffer);
-				terminal.println("|" + content + "|");
+				terminal.println("|" + content + "|");// print out recieved
 				terminal.println("Length: " + content.length());
-				if (content.equals("covid")) {
+				if (content.equals("covid")) {//if it recives "covid" it increase its count
 					localStats++;
 				}
 
-				data = new byte[HEADER_LENGTH];
 				String stats = (localStats) + "," + (globalStats);
-				data = stats.getBytes(StandardCharsets.UTF_8);
+				data = stats.getBytes(StandardCharsets.UTF_8);// converts string to bytes
 				String str = new String(data, StandardCharsets.UTF_8);
-				terminal.println("Stats to send: " + str);
+				terminal.println("Response to send: " + str);//prep stats to send
 
 				DatagramPacket response;
 				response = new DatagramPacket(data, data.length);
 				response.setSocketAddress(packet.getSocketAddress());
-				socket.send(response);
-				break;
-			default:
+				socket.send(response);// send back stats
+			}
+			else{
 				terminal.println("Unexpected packet" + packet.toString());
 			}
 
@@ -85,17 +82,15 @@ public class Server extends Node {
 
 	public synchronized void start() throws Exception {
 		terminal.println("Waiting for contact");
-		this.wait();
+		this.wait();//server waits to receive message from client
 	}
-
-	////////////////////////////////////////
-	////////////////////////
 
 	public static class Thread1 extends Thread {
 		public void run() {
 			try {
 				Terminal terminal = new Terminal("Server1 Port: " + DEFAULT_PORT);
 				(new Server(terminal, DEFAULT_PORT)).start();
+				// configures a server terminal using server instantiater
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
 				e.printStackTrace();
@@ -108,6 +103,7 @@ public class Server extends Node {
 			try {
 				Terminal terminal = new Terminal("Server1 Port: " + DEFAULT_PORT2);
 				(new Server(terminal, DEFAULT_PORT2)).start();
+				// configures a server terminal using server instantiater
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
 				e.printStackTrace();
@@ -120,6 +116,7 @@ public class Server extends Node {
 			try {
 				Terminal terminal = new Terminal("Server1 client facility Port: " + DEFAULT_DST_PORT);
 				(new Client(terminal, DEFAULT_DST_NODE, DEFAULT_DST_PORT, DEFAULT_SRC_PORT)).sendMessage(key);
+				//configures a client terminal using client instantiater from client.java
 				terminal.println("Program completed");
 			} catch (java.lang.Exception e) {
 				e.printStackTrace();
@@ -129,15 +126,16 @@ public class Server extends Node {
 
 	public static void decryption(Aead aead) {
 		key = aead;
+
 		try {
 			Thread newThread1 = new Thread1();
-			newThread1.start();
+			newThread1.start();// thread to listen for client 1
 
 			Thread newThread2 = new Thread2();
-			newThread2.start();
+			newThread2.start();// thread to listen to client 2
 
 			Thread sendThread1 = new sendThread();
-			sendThread1.start();
+			sendThread1.start();// thread to send to global server
 
 		} catch (java.lang.Exception e) {
 			e.printStackTrace();
@@ -145,18 +143,5 @@ public class Server extends Node {
 	}
 
 	public static void main(String[] args) {
-//		try {
-//			Thread newThread1 = new Thread1();
-//			newThread1.start();
-//
-//			Thread newThread2 = new Thread2();
-//			newThread2.start();
-//
-//			Thread sendThread1 = new sendThread();
-//			sendThread1.start();
-//
-//		} catch (java.lang.Exception e) {
-//			e.printStackTrace();
-//		}
 	}
 }
