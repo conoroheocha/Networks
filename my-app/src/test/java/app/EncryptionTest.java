@@ -9,7 +9,7 @@ import org.junit.Test;
 public class EncryptionTest {
 
 	@Test
-	public void test() throws GeneralSecurityException {
+	public void test() throws GeneralSecurityException {// tests encryption
 		Encryption encryption = new Encryption(null);
 		String testString = "Test";
 		byte[] encrypted = encryption.encrypt(testString);
